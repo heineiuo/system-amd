@@ -15,6 +15,11 @@ const state = {
 
 function load(): Promise<void> {
   return new Promise((resolve, reject) => {
+    if ('SystemJS' in window) {
+      state.loaded = true
+      state.loading = false
+      return resolve()
+    }
     const script = document.createElement('script')
     const scriptContent = `
 /*
@@ -31,12 +36,12 @@ window.SystemJS = System;
       type: 'application/javascript',
     })
     script.src = URL.createObjectURL(blob)
-    script.onload = () => {
+    script.onload = (): void => {
       state.loaded = true
       state.loading = false
       resolve()
     }
-    script.onerror = e => {
+    script.onerror = (e): void => {
       state.loaded = false
       state.loading = false
       reject(e)
